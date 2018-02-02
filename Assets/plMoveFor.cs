@@ -1,8 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityStandardAssets.Characters.FirstPerson;
 
 public class plMoveFor : MonoBehaviour {
+
+    List<Transform> passengers = new List<Transform>();
 
     // Use this for initialization
     public float speed;
@@ -13,6 +16,7 @@ public class plMoveFor : MonoBehaviour {
     bool forward = true;
     bool back = false;
     float startPos; // slightly larger than startTransform
+    
     
 	void Start () {
         startTransform = transform.position;
@@ -27,8 +31,9 @@ public class plMoveFor : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
-
+	void Update ()
+    {
+        Vector3 originalPosition = transform.position;
         if(forward == true)
         {
             //if (transform.localPosition.z <= endLerpPos.z)
@@ -54,7 +59,32 @@ public class plMoveFor : MonoBehaviour {
                 forward = true;
             }
         }
+        Vector3 delta = (transform.position - originalPosition);
 
+        for(int i = 0; i < passengers.Count; ++i)
+        {
+            passengers[i].Translate(delta, Space.World);
+        }
         
 	}
+
+    void OnControllerColliderHit(ControllerColliderHit other)
+    {
+        var playerController = other.collider.GetComponent<FirstPersonController>();
+        if(other.collider.tag == "Player")
+        {
+            Debug.Log("PASSENGER ADDED");
+            passengers.Add(playerController.transform);
+        }
+    }
+    void OnCollisionExit(Collision other)
+    {
+        var playerController = other.collider.GetComponent<FirstPersonController>();
+        if (other.collider.tag == "Player")
+        {
+            Debug.Log("PASSENGER REMOVED");
+            passengers.Remove(playerController.transform);
+        }
+    }
 }
+// on trigger enter, parent player to block, on trigger enter set to null

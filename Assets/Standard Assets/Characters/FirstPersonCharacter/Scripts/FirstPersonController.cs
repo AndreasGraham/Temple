@@ -3,6 +3,8 @@ using UnityEngine;
 using UnityStandardAssets.CrossPlatformInput;
 using UnityStandardAssets.Utility;
 using Random = UnityEngine.Random;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 namespace UnityStandardAssets.Characters.FirstPerson
 {
@@ -28,6 +30,10 @@ namespace UnityStandardAssets.Characters.FirstPerson
         [SerializeField] private AudioClip m_JumpSound;           // the sound played when character leaves the ground.
         [SerializeField] private AudioClip m_LandSound;           // the sound played when character touches back on ground.
 
+        public Slider healthSlider;
+        public Slider scoreSlider;
+        public Slider timeSlider;
+        public float myTime = 200.0f;
         public int score;
         public float health;
         private Camera m_Camera;
@@ -47,6 +53,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
         // Use this for initialization
         private void Start()
         {
+          
             m_CharacterController = GetComponent<CharacterController>();
             m_Camera = Camera.main;
             m_OriginalCameraPosition = m_Camera.transform.localPosition;
@@ -57,12 +64,19 @@ namespace UnityStandardAssets.Characters.FirstPerson
             m_Jumping = false;
             m_AudioSource = GetComponent<AudioSource>();
 			m_MouseLook.Init(transform , m_Camera.transform);
-        }
 
+          
+        }
+     
 
         // Update is called once per frame
         private void Update()
         {
+            healthSlider.value = health;
+            scoreSlider.value = score;
+            timeSlider.value = myTime;
+            myTime -= Time.deltaTime;
+
             RotateView();
             // the jump state needs to read here to make sure it is not missed
             if (!m_Jump)
@@ -83,6 +97,10 @@ namespace UnityStandardAssets.Characters.FirstPerson
             }
 
             m_PreviouslyGrounded = m_CharacterController.isGrounded;
+            if(health <= 0 || myTime <= 0)
+            {
+                SceneManager.LoadScene("dungeon");
+            }
         }
 
 
